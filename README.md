@@ -16,6 +16,7 @@ https://raw.githubusercontent.com/icyyrain/proxy-config/main/subconverter.ini
 - `🛟 备用自建节点`：同样匹配全部 `MochaKK` 节点，但在 Clash 中独立保存选择，可选备用协议。
 - `🚀 节点选择`：同时显示上述两个自建组。
 - `🎨 Pixiv`：可在两个自建组、节点选择、地区组、手动切换与直连之间选择。
+- 16 个业务与媒体分组可直接选择 `🏠 自建节点` 或 `🛟 备用自建节点`，无需改变全局节点选择。
 - Pixiv 相关域名在通用代理与媒体规则之前匹配，避免被后续规则抢先处理。
 
 ## 维护
