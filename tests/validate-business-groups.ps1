@@ -108,6 +108,18 @@ if ($groups['🎬 小宝影院'][0] -ne '🇭🇰 香港节点') {
     throw 'Xiaobao Cinema must default to the Hong Kong group'
 }
 
+$requiredXiaobaoRules = @(
+    'ruleset=🎬 小宝影院,[]DOMAIN-SUFFIX,xiaobaotv.com',
+    'ruleset=🎬 小宝影院,[]DOMAIN-KEYWORD,dytt-',
+    'ruleset=🎬 小宝影院,[]DOMAIN-SUFFIX,dyttimage.com'
+)
+
+foreach ($rule in $requiredXiaobaoRules) {
+    if ($lines -notcontains $rule) {
+        throw "Required Xiaobao Cinema rule not found: $rule"
+    }
+}
+
 $visiting = [System.Collections.Generic.HashSet[string]]::new()
 $visited = [System.Collections.Generic.HashSet[string]]::new()
 
