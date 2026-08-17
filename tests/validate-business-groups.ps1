@@ -12,6 +12,7 @@ $targetGroups = @(
     '🏰 Disney+',
     '📺 巴哈姆特',
     '📺 哔哩哔哩',
+    '🎬 小宝影院',
     '🌍 国外媒体',
     '🌏 国内媒体',
     '📢 谷歌FCM',
@@ -101,6 +102,10 @@ foreach ($name in $excludedGroups) {
             throw "Excluded group contains self-hosted option: $name"
         }
     }
+}
+
+if ($groups['🎬 小宝影院'][0] -ne '🇭🇰 香港节点') {
+    throw 'Xiaobao Cinema must default to the Hong Kong group'
 }
 
 $visiting = [System.Collections.Generic.HashSet[string]]::new()
