@@ -120,6 +120,22 @@ foreach ($rule in $requiredXiaobaoRules) {
     }
 }
 
+$expectedPs5Options = @(
+    '🏠 自建节点',
+    '🇭🇰 香港节点',
+    '🇯🇵 日本节点',
+    '🇺🇲 美国节点',
+    'DIRECT'
+)
+
+if (-not $groups.ContainsKey('🎮 PS5节点')) {
+    throw 'PS5 group not found'
+}
+
+if (Compare-Object -ReferenceObject $expectedPs5Options -DifferenceObject $groups['🎮 PS5节点'] -SyncWindow 0) {
+    throw 'PS5 group options or option order are incorrect'
+}
+
 $visiting = [System.Collections.Generic.HashSet[string]]::new()
 $visited = [System.Collections.Generic.HashSet[string]]::new()
 
