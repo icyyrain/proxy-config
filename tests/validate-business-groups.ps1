@@ -121,6 +121,7 @@ foreach ($rule in $requiredXiaobaoRules) {
 }
 
 $expectedPs5Options = @(
+    '🚀 节点选择',
     '🏠 自建节点',
     '🇭🇰 香港节点',
     '🇯🇵 日本节点',
