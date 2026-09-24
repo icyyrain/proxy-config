@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Add `🏠 自建节点` and `🛟 备用自建节点` as direct choices in the 16 approved business and media policy groups.
+**Goal:** Add `🏠 自建节点` and `🛟 备用自建` as direct choices in the 16 approved business and media policy groups.
 
 **Architecture:** Keep the existing ACL4SSR INI structure and insert the two references into selected `custom_proxy_group` lines only. A focused PowerShell regression test parses group references, enforces the include/exclude scope, and detects reference cycles; a live Subconverter request verifies generated Clash output after publication.
 
@@ -11,7 +11,7 @@
 ## Global Constraints
 
 - Modify exactly the 16 groups listed in `docs/2026-07-16-business-groups-self-hosted-options-design.md`.
-- Put `[]🏠 自建节点` and then `[]🛟 备用自建节点` immediately after `[]🚀 节点选择` where present.
+- Put `[]🏠 自建节点` and then `[]🛟 备用自建` immediately after `[]🚀 节点选择` where present.
 - For `📺 哔哩哔哩`, put both options after `[]🎯 全球直连`; for `🌏 国内媒体`, put them after `[]DIRECT`.
 - Do not modify direct, reject, node-filter, region, manual-selection, or self-hosted groups.
 - Do not introduce subscription URLs, proxy URIs, UUIDs, passwords, or server credentials.
@@ -57,7 +57,7 @@ Expected: non-zero exit with `Target group missing self-hosted options`, because
 For each target line containing `[]🚀 节点选择`, replace that segment with:
 
 ```text
-[]🚀 节点选择`[]🏠 自建节点`[]🛟 备用自建节点
+[]🚀 节点选择`[]🏠 自建节点`[]🛟 备用自建
 ```
 
 - [ ] **Step 2: Update Bilibili and Domestic Media separately**
@@ -65,7 +65,7 @@ For each target line containing `[]🚀 节点选择`, replace that segment with
 Change the start of the Bilibili options to:
 
 ```text
-custom_proxy_group=📺 哔哩哔哩`select`[]🎯 全球直连`[]🏠 自建节点`[]🛟 备用自建节点
+custom_proxy_group=📺 哔哩哔哩`select`[]🎯 全球直连`[]🏠 自建节点`[]🛟 备用自建
 ```
 
 Keep its Taiwan and Hong Kong options unchanged after these additions.
@@ -73,7 +73,7 @@ Keep its Taiwan and Hong Kong options unchanged after these additions.
 Change the start of the Domestic Media options to:
 
 ```text
-custom_proxy_group=🌏 国内媒体`select`[]DIRECT`[]🏠 自建节点`[]🛟 备用自建节点
+custom_proxy_group=🌏 国内媒体`select`[]DIRECT`[]🏠 自建节点`[]🛟 备用自建
 ```
 
 Keep its region and manual-selection options unchanged after these additions.
@@ -152,7 +152,7 @@ Call the sub.v1.mk API with the two fake nodes and the stable Raw INI URL. Expec
 Assert:
 
 - both self-hosted groups contain both fake nodes;
-- all 16 target groups contain `🏠 自建节点` and `🛟 备用自建节点`;
+- all 16 target groups contain `🏠 自建节点` and `🛟 备用自建`;
 - excluded groups do not contain either reference;
 - Pixiv still has 11 expected options and all four Pixiv domain rules.
 

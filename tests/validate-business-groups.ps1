@@ -1,4 +1,4 @@
-﻿param(
+param(
     [string]$IniPath = (Join-Path $PSScriptRoot '..\subconverter.ini')
 )
 
@@ -29,7 +29,7 @@ $targetGroups = @(
 $excludedGroups = @(
     '☑️ 手动切换',
     '🏠 自建节点',
-    '🛟 备用自建节点',
+    '🛟 备用自建',
     '🎯 全球直连',
     '🛑 广告拦截',
     '🍃 应用净化',
@@ -61,7 +61,7 @@ foreach ($line in ($lines | Where-Object { $_ -like 'custom_proxy_group=*' })) {
     $groups[$name] = $references
 }
 
-$requiredReferences = @('🏠 自建节点', '🛟 备用自建节点')
+$requiredReferences = @('🏠 自建节点', '🛟 备用自建')
 
 foreach ($name in $targetGroups) {
     if (-not $groups.ContainsKey($name)) {
@@ -89,7 +89,7 @@ foreach ($name in $targetGroups) {
         $anchorIndex -lt 0 -or
         $anchorIndex + 2 -ge $groups[$name].Count -or
         $groups[$name][$anchorIndex + 1] -ne '🏠 自建节点' -or
-        $groups[$name][$anchorIndex + 2] -ne '🛟 备用自建节点'
+        $groups[$name][$anchorIndex + 2] -ne '🛟 备用自建'
     ) {
         throw "Self-hosted option order is incorrect: $name"
     }
@@ -115,7 +115,7 @@ $expectedJapanOptions = @(
     '🇯🇵 日本节点',
     '🚀 节点选择',
     '🏠 自建节点',
-    '🛟 备用自建节点',
+    '🛟 备用自建',
     '🇭🇰 香港节点',
     '🇹🇼 台湾节点',
     '🇸🇬 狮城节点',
