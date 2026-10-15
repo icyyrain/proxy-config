@@ -29,7 +29,7 @@ $targetGroups = @(
 $excludedGroups = @(
     '☑️ 手动切换',
     '🏠 自建节点',
-    '🛟 备用自建',
+    '🏠 自建备用',
     '🎯 全球直连',
     '🛑 广告拦截',
     '🍃 应用净化',
@@ -61,7 +61,7 @@ foreach ($line in ($lines | Where-Object { $_ -like 'custom_proxy_group=*' })) {
     $groups[$name] = $references
 }
 
-$requiredReferences = @('🏠 自建节点', '🛟 备用自建')
+$requiredReferences = @('🏠 自建节点', '🏠 自建备用')
 
 foreach ($name in $targetGroups) {
     if (-not $groups.ContainsKey($name)) {
@@ -89,7 +89,7 @@ foreach ($name in $targetGroups) {
         $anchorIndex -lt 0 -or
         $anchorIndex + 2 -ge $groups[$name].Count -or
         $groups[$name][$anchorIndex + 1] -ne '🏠 自建节点' -or
-        $groups[$name][$anchorIndex + 2] -ne '🛟 备用自建'
+        $groups[$name][$anchorIndex + 2] -ne '🏠 自建备用'
     ) {
         throw "Self-hosted option order is incorrect: $name"
     }
@@ -115,13 +115,14 @@ $expectedJapanOptions = @(
     '🇯🇵 日本节点',
     '🚀 节点选择',
     '🏠 自建节点',
-    '🛟 备用自建',
+    '🏠 自建备用',
     '🇭🇰 香港节点',
     '🇹🇼 台湾节点',
     '🇸🇬 狮城节点',
     '🇺🇲 美国节点',
     '🇰🇷 韩国节点',
     '☑️ 手动切换',
+    '🏡 自建住宅IP',
     'DIRECT'
 )
 
