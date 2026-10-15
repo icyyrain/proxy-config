@@ -22,6 +22,7 @@ https://raw.githubusercontent.com/icyyrain/proxy-config/main/subconverter.ini
 - `🎮 PS5节点`：供自定义 PS5 规则使用，默认跟随节点选择，也可在自建、香港、日本、美国节点与直连之间独立选择。
 - 19 个业务与媒体分组可直接选择 `🏠 自建节点` 或 `🛟 备用自建`，无需改变全局节点选择。
 - Pixiv 相关域名在通用代理与媒体规则之前匹配，避免被后续规则抢先处理。
+- `💬 Ai平台`：Copilot 专用域名优先于微软通用规则匹配；Grok 网页 `grok.com` 与现有 `x.ai` 规则统一使用 AI 分组。
 
 ## 生成订阅链接
 
