@@ -38,8 +38,7 @@ $excludedGroups = @(
     '🇺🇲 美国节点',
     '🇸🇬 狮城节点',
     '🇹🇼 台湾节点',
-    '🇰🇷 韩国节点',
-    '🎥 奈飞节点'
+    '🇰🇷 韩国节点'
 )
 
 $lines = Get-Content -Encoding utf8 -LiteralPath $IniPath
