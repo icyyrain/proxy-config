@@ -26,6 +26,33 @@ https://raw.githubusercontent.com/icyyrain/proxy-config/main/subconverter.ini
 - Pixiv 相关域名在通用代理与媒体规则之前匹配，避免被后续规则抢先处理。
 - `💬 Ai平台`：Copilot 专用域名优先于微软通用规则匹配；Grok 网页 `grok.com` 与现有 `x.ai` 规则统一使用 AI 分组；额外覆盖 Meta Muse 的 `muse.ai` 及其子域名。
 
+## 订阅内置 DNS
+
+`subconverter.ini` 通过 `clash_rule_base` 引用本仓库的 `clash-base.yaml`，将公共基础设置和 DNS 一起写入转换后的订阅。DNS 配置面向 FlClash / Mihomo（Clash Meta），需要客户端的 GeoSite 数据库包含 `cn`。
+
+- 普通域名默认使用 Google / Cloudflare DoH，通过现有 `🚀 节点选择` 代理组访问。
+- 国内域名通过 `geosite:cn`、`.cn` 和微信等专门策略使用国内直连 DoH；清空旧的 fallback。
+- 代理节点域名解析和 DNS 服务商域名的引导解析单独处理，避免解析循环。
+- 沿用已验证的 `redir-host` 模式，保留 fake-IP 兼容过滤列表供后续模式调整使用。
+
+使用已有订阅链接更新配置即可，通常不需要重新生成长／短链接。转换服务可能缓存远程模板，更新后应以实际下载到的 `dns` 内容为准。
+
+客户端需要让订阅 DNS 生效：旧版 FlClash 关闭本地“覆写 DNS”，新版将相关 DNS 字段设为跟随订阅；其他客户端也应检查自己的覆写层。TUN、系统代理和本机 DNS 接管仍由各设备设置，订阅不会替代这些设置。
+
+`🚀 节点选择` 应选择可用代理节点；若用于采用其他组名的配置，需要同步修改 DNS 地址中 `#` 后的组名。Merlin Clash 会使用自己的路由器 DNS 模板，当前版本不能靠更新此订阅替代路由器内的 DNS 设置。
+
+本仓库的 YAML 只有公共基础配置，不含真实节点。转换服务仍从用户订阅生成节点、策略组和路由规则，不能单独把 `clash-base.yaml` 当完整订阅导入。
+
+修改后可运行现有两项 PowerShell 验证，以及 DNS 模板检查（Python 需安装 PyYAML）：
+
+```powershell
+.\tests\validate-business-groups.ps1
+.\tests\validate-link-generator.ps1
+python .\tests\validate-dns-template.py
+```
+
+DNS 检查也可通过 `--converted <私密配置文件路径>` 核对实际转换输出。带真实节点的转换结果只保存在仓库外，不要提交。
+
 ## 生成订阅链接
 
 本地默认配置保存在 Git 忽略的 `config/subscription.local.psd1`。日常直接运行：
@@ -57,4 +84,4 @@ https://raw.githubusercontent.com/icyyrain/proxy-config/main/subconverter.ini
 
 ## 安全
 
-本仓库只保存公开规则、策略组和节点名称匹配表达式，不保存订阅 URL、订阅 ID、UUID、密码、密钥或服务器管理凭据。
+本仓库只保存公开规则、策略组、节点名称匹配表达式及公共 DNS 基础设置，不保存订阅 URL、订阅 ID、UUID、密码、密钥或服务器管理凭据。
