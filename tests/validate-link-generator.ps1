@@ -64,7 +64,7 @@ Assert-Equal '/sub' $defaultUri.AbsolutePath 'Backend path mismatch'
 Assert-Equal 'clash' $defaultQuery.target 'Target mismatch'
 Assert-Equal 'https://example.invalid/3x-ui?client=test|https://airport.example.invalid/sub?token=fake' $defaultQuery.url 'Source join mismatch'
 Assert-Equal 'false' $defaultQuery.insert 'Insert mismatch'
-Assert-Equal 'https://raw.githubusercontent.com/icyyrain/proxy-config/main/subconverter.ini' $defaultQuery.config 'Remote config mismatch'
+Assert-Equal 'https://raw.githubusercontent.com/icyyrain/proxy-config/main/subconverter.ini?v=selfhost-v1' $defaultQuery.config 'Remote config mismatch'
 Assert-Equal '摩卡空港 MochaKuko' $defaultQuery.filename 'Subscription name mismatch'
 Assert-Equal '-icyy$@' $defaultQuery.rename 'Automatic rename mismatch'
 Assert-Equal 'true' $defaultQuery.emoji 'Emoji mismatch'
@@ -77,6 +77,7 @@ Assert-Equal 'false' $defaultQuery.scv 'SCV mismatch'
 Assert-Equal 'false' $defaultQuery.fdn 'FDN mismatch'
 Assert-Equal 'true' $defaultQuery.new_name 'Clash field-name mismatch'
 Assert-Equal 'ShadowRocket' $defaultQuery.diyua 'User-Agent mismatch'
+Assert-Equal '(?:MochaKK)' $defaultQuery.selfhost 'Default self-hosted prefixes mismatch'
 Assert-True ([string]::IsNullOrEmpty($defaultResult.ShortUrl)) 'Default execution unexpectedly created a short link'
 
 $friendResult = & $scriptPath `
@@ -89,6 +90,52 @@ $friendQuery = ConvertFrom-QueryString ([Uri]$friendResult.LongUrl).Query
 Assert-Equal 'https://friend.example.invalid/sub?client=friend|https://airport.example.invalid/sub?token=fake' $friendQuery.url 'Friend override lost the default airport source'
 Assert-Equal '-friend$@' $friendQuery.rename 'Friend rename mismatch'
 Assert-Equal 'Friend Port' $friendQuery.filename 'Friend subscription name mismatch'
+
+$prefixResult = & $scriptPath -ConfigPath $fixturePath -SelfHostedPrefixes @('MochaKK', 'FriendVPS')
+$prefixQuery = ConvertFrom-QueryString ([Uri]$prefixResult.LongUrl).Query
+Assert-Equal '(?:MochaKK|FriendVPS)' $prefixQuery.selfhost 'Multiple prefix encoding mismatch'
+Assert-Equal $defaultQuery.url $prefixQuery.url 'Prefix filtering changed subscription sources'
+Assert-Equal $defaultQuery.rename $prefixQuery.rename 'Prefix filtering changed rename behavior'
+
+$literalResult = & $scriptPath -ConfigPath $fixturePath -SelfHostedPrefixes @(' C++ ', 'Lab.(A)', 'Pipe|Home', 'Back`Tick', 'C++')
+$literalQuery = ConvertFrom-QueryString ([Uri]$literalResult.LongUrl).Query
+Assert-Equal '(?:C\+\+|Lab\.\(A\)|Pipe\|Home|Back\x60Tick)' $literalQuery.selfhost 'Literal prefix escaping or deduplication mismatch'
+foreach ($name in @('🇺🇸 C++-main', 'Lab.(A)-main', 'Pipe|Home-main', 'Back`Tick-main')) {
+    Assert-True ([regex]::IsMatch($name, $literalQuery.selfhost)) 'A literal prefix did not match its node'
+}
+foreach ($name in @('Cxxxx-main', 'LabXA-main', 'Pipe-main', 'Home-main')) {
+    Assert-True (-not [regex]::IsMatch($name, $literalQuery.selfhost)) 'A prefix was interpreted as a regular expression'
+}
+
+foreach ($badPrefixes in @(
+    @{Value = @()},
+    @{Value = @('')},
+    @{Value = @('Good', ' ')},
+    @{Value = @("Bad`nNode")},
+    @{Value = @("Good`n")}
+)) {
+    $failed = $false
+    try { $null = & $scriptPath -ConfigPath $fixturePath -SelfHostedPrefixes $badPrefixes.Value }
+    catch { $failed = $true }
+    Assert-True $failed 'Invalid prefix input was accepted'
+}
+
+$tempConfig = [IO.Path]::GetTempFileName() + '.psd1'
+try {
+    $fixtureText = Get-Content -LiteralPath $fixturePath -Raw -Encoding utf8
+    $fixtureText = $fixtureText.Replace('@{', "@{`n    SelfHostedPrefixes = @('ConfiguredHome', 'LocalBackup')")
+    [IO.File]::WriteAllText($tempConfig, $fixtureText, [Text.UTF8Encoding]::new($true))
+    $fromFile = & $scriptPath -ConfigPath $tempConfig
+    Assert-Equal '(?:ConfiguredHome|LocalBackup)' (ConvertFrom-QueryString ([Uri]$fromFile.LongUrl).Query).selfhost 'Local configuration prefix list was ignored'
+    $overridden = & $scriptPath -ConfigPath $tempConfig -SelfHostedPrefixes @('CliHome')
+    Assert-Equal '(?:CliHome)' (ConvertFrom-QueryString ([Uri]$overridden.LongUrl).Query).selfhost 'Command line did not override local prefixes'
+} finally {
+    Remove-Item -LiteralPath $tempConfig -Force -ErrorAction SilentlyContinue
+    Remove-Item -LiteralPath ($tempConfig -replace '\.psd1$', '') -Force -ErrorAction SilentlyContinue
+}
+
+$customConfig = & $scriptPath -ConfigPath $fixturePath -RemoteConfigUrl 'https://config.example.invalid/custom.ini?revision=2'
+Assert-Equal 'https://config.example.invalid/custom.ini?revision=2' (ConvertFrom-QueryString ([Uri]$customConfig.LongUrl).Query).config 'Custom remote configuration URL was changed'
 
 $probe = [Net.Sockets.TcpListener]::new([Net.IPAddress]::Loopback, 0)
 $probe.Start()

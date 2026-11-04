@@ -3,6 +3,7 @@
     AirportSubscriptionUrl  = 'https://airport.example.invalid/subscription'
     ClientName              = 'client-name'
     SubscriptionName        = 'Subscription Name'
+    SelfHostedPrefixes      = @('MochaKK')
     RemoteConfigUrl         = 'https://raw.githubusercontent.com/icyyrain/proxy-config/main/subconverter.ini'
     BackendUrl              = 'https://api.v1.mk'
     ShortUrlEndpoint        = 'https://v1.mk/short'

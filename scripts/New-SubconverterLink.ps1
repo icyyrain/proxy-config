@@ -9,6 +9,7 @@ param(
     [string]$BackendUrl,
     [string]$ShortUrlEndpoint,
     [string]$RenameRule,
+    [string[]]$SelfHostedPrefixes,
     [Nullable[bool]]$Udp,
     [Nullable[bool]]$Xudp,
     [Nullable[bool]]$Emoji,
@@ -88,17 +89,48 @@ function ConvertTo-LowerBoolean {
     return $Value.ToString().ToLowerInvariant()
 }
 
+function ConvertTo-SelfHostedPattern {
+    param([object[]]$Prefixes)
+
+    $escaped = @()
+    $seen = [System.Collections.Generic.HashSet[string]]::new([StringComparer]::Ordinal)
+    foreach ($prefix in $Prefixes) {
+        if ($prefix -isnot [string] -or [string]::IsNullOrWhiteSpace($prefix)) {
+            throw 'SelfHostedPrefixes must contain non-empty strings.'
+        }
+        if ($prefix -match '[\x00-\x1f\x7f]') {
+            throw 'SelfHostedPrefixes must not contain control characters.'
+        }
+        $value = $prefix.Trim()
+        if ($seen.Add($value)) {
+            # A backtick is Subconverter's group-field delimiter, so encode it in the regex.
+            $escaped += [regex]::Escape($value).Replace('`', '\x60')
+        }
+    }
+    if ($escaped.Count -eq 0) {
+        throw 'SelfHostedPrefixes must contain at least one prefix.'
+    }
+    return '(?:' + ($escaped -join '|') + ')'
+}
+
 $threeXuiUrl = Assert-HttpUrl (Resolve-Setting 'ThreeXuiSubscriptionUrl' $null) 'ThreeXuiSubscriptionUrl'
 $airportUrl = Assert-HttpUrl (Resolve-Setting 'AirportSubscriptionUrl' $null) 'AirportSubscriptionUrl'
 $remoteConfig = Assert-HttpUrl (
     Resolve-Setting 'RemoteConfigUrl' 'https://raw.githubusercontent.com/icyyrain/proxy-config/main/subconverter.ini'
 ) 'RemoteConfigUrl'
+if ($remoteConfig -ceq 'https://raw.githubusercontent.com/icyyrain/proxy-config/main/subconverter.ini') {
+    # Avoid a cached pre-template INI ignoring the new per-link prefix parameter.
+    $remoteConfig += '?v=selfhost-v1'
+}
 $backend = Assert-HttpUrl (Resolve-Setting 'BackendUrl' 'https://api.v1.mk') 'BackendUrl'
 $shortEndpoint = Assert-HttpUrl (Resolve-Setting 'ShortUrlEndpoint' 'https://v1.mk/short') 'ShortUrlEndpoint'
 $resolvedClientName = [string](Resolve-Setting 'ClientName' '')
 $resolvedSubscriptionName = [string](Resolve-Setting 'SubscriptionName' '')
 $resolvedRenameRule = [string](Resolve-Setting 'RenameRule' '')
 $resolvedUserAgent = [string](Resolve-Setting 'UserAgent' 'ShadowRocket')
+$selfHostedPattern = ConvertTo-SelfHostedPattern @(
+    Resolve-Setting 'SelfHostedPrefixes' @('MochaKK')
+)
 $resolvedUdp = ConvertTo-Boolean (Resolve-Setting 'Udp' $true) 'Udp'
 $resolvedXudp = ConvertTo-Boolean (Resolve-Setting 'Xudp' $true) 'Xudp'
 $resolvedEmoji = ConvertTo-Boolean (Resolve-Setting 'Emoji' $true) 'Emoji'
@@ -138,6 +170,7 @@ $queryValues = [ordered]@{
     fdn      = 'false'
     new_name = ConvertTo-LowerBoolean $resolvedNewName
     diyua    = $resolvedUserAgent
+    selfhost = $selfHostedPattern
 }
 
 $query = (

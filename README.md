@@ -12,9 +12,9 @@ https://raw.githubusercontent.com/icyyrain/proxy-config/main/subconverter.ini
 
 ## 自定义内容
 
-- `🏠 自建节点`：匹配名称含 `MochaKK` 的全部节点，用于日常主线路。
-- `🏠 自建备用`：同样匹配全部 `MochaKK` 节点，但在 Clash 中独立保存选择，可选备用协议。
-- `🏡 自建住宅IP`：手动选择名称匹配 `MochaKK.*[Rr]esidential` 的节点，分组位于 PS5 节点之前。
+- `🏠 自建节点`：匹配名称含任一自建前缀的节点，前缀默认 `MochaKK`，可通过链接生成参数 `SelfHostedPrefixes` 设置。
+- `🏠 自建备用`：采用相同的前缀筛选，在 Clash 中独立保存选择，可选备用协议。
+- `🏡 自建住宅IP`：名称包含任一自建前缀、且其后匹配 `[Rr]esidential` 的节点，分组位于 PS5 节点之前。
 - `🚀 节点选择`：可选择三个自建组，住宅组选项紧跟“手动切换”。
 - `🎨 Pixiv`：可在自建组、节点选择、地区组、手动切换与直连之间选择。
 - `🇯🇵 日本服务`：按具体服务匹配日本票务、DMM、DLsite、Niconico、ACGN 与影音网站，默认使用日本节点；不匹配整个 `.jp`，Pixiv 仍使用独立分组。
@@ -77,6 +77,31 @@ DNS 检查也可通过 `--converted <私密配置文件路径>` 核对实际转�
 ```
 
 所有参数和示例配置见 `config/subscription.example.psd1`。脚本返回的长链接包含可还原的原始订阅地址，短链服务也能看到长链接；两者都应视作凭据，不要提交到公开仓库。
+
+### 按链接设置自建前缀
+
+`SelfHostedPrefixes` 是字符串数组，默认 `@('MochaKK')`。可以保存在本地 PSD1，也可在生成某条链接时覆盖：
+
+```powershell
+.\scripts\New-SubconverterLink.ps1 -SelfHostedPrefixes @('MochaKK', 'FriendVPS')
+```
+
+它同时控制自建节点、自建备用、自建住宅IP三个分组。前缀按普通字符串、区分大小写处理，去掉首尾空白并去重；`.`、`+`、`|` 等字符会自动按字面转义，不能用它输入正则表达式。空列表、空字符串和控制字符会报错。
+
+为兼容节点名前面的国旗 emoji，保留“名称包含任一前缀”的原有匹配方式，不要求前缀出现在整个显示名称的第一个字符。该参数只改变分组归类，不删除其他节点，也不承担节点访问权限控制。
+
+生成器把筛选表达式编码到链接的 `selfhost` 参数，由远程 INI 模板按请求读取。不同链接可以各自使用不同前缀；不带该参数的旧链接默认继续匹配 `MochaKK`。已有短链不会自动获得新的自定义列表，需要按新参数生成新链接。
+
+为避开转换服务缓存的旧版静态 INI，生成器对本仓库的标准 Raw URL 自动附加 `?v=selfhost-v1` 模板版本标识。自定义的其他 `RemoteConfigUrl` 原样保留，并需要对应模板支持 `request.selfhost`。
+
+需要核对真实转换服务时，可运行下列集成检查（需 Python 的 requests / PyYAML 和 PowerShell）。检查仅向服务发送虚拟测试节点，不读取本地私密订阅、不创建短链接：
+
+```powershell
+$env:PWSH_EXE = (Get-Command pwsh).Source
+python .\tests\validate-prefix-conversion.py
+```
+
+它验证默认前缀、无新参数的旧链接、单／多前缀、特殊字符与中文前缀；三个自建分组的成员应正确，其他节点及 DNS 保留。
 
 ## 维护
 
