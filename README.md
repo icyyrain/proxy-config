@@ -35,6 +35,7 @@ https://raw.githubusercontent.com/icyyrain/proxy-config/main/subconverter.ini
 
 - 普通域名默认使用 Google / Cloudflare DoH，通过现有 `🚀 节点选择` 代理组访问。
 - 国内域名通过 `geosite:cn`、`.cn` 和微信等专门策略使用国内直连 DoH；清空旧的 fallback。
+- 苹果、PlayStation 下载和微软更新等走直连且有国内 CDN 的域名也使用国内 DoH；否则海外 DoH 会返回美国节点，直连下载很慢。不使用 ECS，避免泄露检测看到本地网段。
 - 代理节点域名解析和 DNS 服务商域名的引导解析单独处理，避免解析循环。
 - 沿用已验证的 `redir-host` 模式，保留 fake-IP 兼容过滤列表供后续模式调整使用。
 

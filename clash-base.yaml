@@ -325,6 +325,20 @@ dns:
     +.bytedance.com: https://dns.alidns.com/dns-query#DIRECT
     +.163.com: https://dns.alidns.com/dns-query#DIRECT
     +.netease.com: https://dns.alidns.com/dns-query#DIRECT
+    +.apple.com: https://doh.pub/dns-query#DIRECT
+    +.aaplimg.com: https://doh.pub/dns-query#DIRECT
+    +.mzstatic.com: https://doh.pub/dns-query#DIRECT
+    +.cdn-apple.com: https://doh.pub/dns-query#DIRECT
+    +.icloud.com: https://doh.pub/dns-query#DIRECT
+    +.icloud-content.com: https://doh.pub/dns-query#DIRECT
+    +.apple-cloudkit.com: https://doh.pub/dns-query#DIRECT
+    +.itunes.com: https://doh.pub/dns-query#DIRECT
+    +.dl.playstation.net: https://doh.pub/dns-query#DIRECT
+    www.bing.com: https://doh.pub/dns-query#DIRECT
+    +.windowsupdate.com: https://doh.pub/dns-query#DIRECT
+    +.delivery.mp.microsoft.com: https://doh.pub/dns-query#DIRECT
+    +.update.microsoft.com: https://doh.pub/dns-query#DIRECT
+    +.download.microsoft.com: https://doh.pub/dns-query#DIRECT
     geosite:cn: https://doh.pub/dns-query#DIRECT
     +.cn: https://doh.pub/dns-query#DIRECT
   fallback: []
