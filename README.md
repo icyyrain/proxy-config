@@ -22,10 +22,12 @@ https://raw.githubusercontent.com/icyyrain/proxy-config/main/subconverter.ini
 - `🎥 奈飞视频`：保留 Netflix 域名分流，默认跟随节点选择，也可独立选择地区组或自建组。
 - `🎬 小宝影院`：网站及常见 `dytt-` 视频源域名默认使用香港节点，避免自建美国线路到片源速度过低。
 - `🎮 PS5节点`：供自定义 PS5 规则使用，默认跟随节点选择，也可在自建、香港、日本、美国节点与直连之间独立选择。
-- 19 个业务与媒体分组可直接选择 `🏠 自建节点`、`🏠 自建备用` 或 `🏡 自建住宅IP`，无需改变全局节点选择。住宅组选项紧跟“手动切换”；原本没有该选项的哔哩哔哩、网易音乐组放在末尾。
+- 20 个业务与媒体分组可直接选择 `🏠 自建节点`、`🏠 自建备用` 或 `🏡 自建住宅IP`，无需改变全局节点选择。住宅组选项紧跟“手动切换”；原本没有该选项的哔哩哔哩、网易音乐组放在末尾。
 - Pixiv 相关域名在通用代理与媒体规则之前匹配，避免被后续规则抢先处理。
 - `💬 Ai平台`：Copilot 专用域名优先于微软通用规则匹配；Grok 网页 `grok.com` 与现有 `x.ai` 规则统一使用 AI 分组；额外覆盖 Meta Muse 的 `muse.ai` 及其子域名。
-- Claude 补充域名 `clau.de`、`statsigapi.net`、`browser-intake-us5-datadoghq.com`、`cdn.usefathom.com` 统一进入 `💬 Ai平台`，优先于广告与通用分流规则；前两项按域名后缀匹配，后两项精确匹配，避免随漏网分组切到其他出口。
+- `🏵️ Claude`：默认跟随 `💬 Ai平台`，也可独立选择自建、住宅、地区组或手动节点；AI 分组不反向引用 Claude，避免循环。需要固定 Claude 出口时，在此组单独选择具体节点，或选择已固定节点的自建组。
+- Claude 的核心、认证、内容分发及补充域名使用专用规则，优先于广告与通用 AI 分流；按 [Net.Coffee 域名清单](https://ip.net.coffee/claude/site.html) 的具体域名整理，`anthropic.com` 等后缀已覆盖其子域名。Sentry、Statsig、Intercom 等为共享服务，其他网站访问相同域名也会使用 Claude 分组。
+- 不添加 `datadog`、`sift` 等宽泛关键词或整类 NTP 规则，本次也未添加 IP／ASN 兜底。此分组用于独立管理出口，DNS 沿用原有配置。
 
 ## 订阅内置 DNS
 

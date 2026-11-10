@@ -7,6 +7,7 @@ $ErrorActionPreference = 'Stop'
 $targetGroups = @(
     '📲 电报消息',
     '💬 Ai平台',
+    '🏵️ Claude',
     '📹 油管视频',
     '🎥 奈飞视频',
     '🏰 Disney+',
@@ -73,7 +74,9 @@ foreach ($name in $targetGroups) {
         }
     }
 
-    $anchor = if ($name -eq '📺 哔哩哔哩') {
+    $anchor = if ($name -eq '🏵️ Claude') {
+        '💬 Ai平台'
+    } elseif ($name -eq '📺 哔哩哔哩') {
         '🎯 全球直连'
     } elseif ($name -eq '🌏 国内媒体') {
         'DIRECT'
