@@ -171,6 +171,27 @@ foreach ($rule in $requiredXiaobaoRules) {
     }
 }
 
+$requiredClaudeRules = @(
+    'ruleset=🏵️ Claude,[]DOMAIN-SUFFIX,anthropic.com',
+    'ruleset=🏵️ Claude,[]DOMAIN-SUFFIX,datadoghq.com',
+    'ruleset=🏵️ Claude,[]DOMAIN-KEYWORD,anthropic',
+    'ruleset=🏵️ Claude,[]DOMAIN-KEYWORD,claude',
+    'ruleset=🏵️ Claude,[]IP-CIDR,160.79.104.0/21,no-resolve',
+    'ruleset=🏵️ Claude,[]IP-CIDR6,2607:6bc0::/32,no-resolve'
+)
+$aiListIndex = [Array]::IndexOf($lines, 'ruleset=💬 Ai平台,https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/Ruleset/AI.list')
+$adRuleIndex = [Array]::IndexOf($lines, 'ruleset=🛑 广告拦截,https://raw.githubusercontent.com/ACL4SSR/ACL4SSR/master/Clash/BanAD.list')
+
+foreach ($rule in $requiredClaudeRules) {
+    $index = [Array]::IndexOf($lines, $rule)
+    if ($index -lt 0) {
+        throw "Required Claude rule not found: $rule"
+    }
+    if ($index -ge $adRuleIndex -or $index -ge $aiListIndex) {
+        throw "Claude rule must precede ad and AI rules: $rule"
+    }
+}
+
 $expectedPs5Options = @(
     '🚀 节点选择',
     '🏠 自建节点',

@@ -26,8 +26,9 @@ https://raw.githubusercontent.com/icyyrain/proxy-config/main/subconverter.ini
 - Pixiv 相关域名在通用代理与媒体规则之前匹配，避免被后续规则抢先处理。
 - `💬 Ai平台`：Copilot 专用域名优先于微软通用规则匹配；Grok 网页 `grok.com` 与现有 `x.ai` 规则统一使用 AI 分组；额外覆盖 Meta Muse 的 `muse.ai` 及其子域名。
 - `🏵️ Claude`：默认跟随 `💬 Ai平台`，也可独立选择自建、住宅、地区组或手动节点；AI 分组不反向引用 Claude，避免循环。需要固定 Claude 出口时，在此组单独选择具体节点，或选择已固定节点的自建组。
-- Claude 的核心、认证、内容分发及补充域名使用专用规则，优先于广告与通用 AI 分流；按 [Net.Coffee 域名清单](https://ip.net.coffee/claude/site.html) 的具体域名整理，`anthropic.com` 等后缀已覆盖其子域名。Sentry、Statsig、Intercom 等为共享服务，其他网站访问相同域名也会使用 Claude 分组。
-- 不添加 `datadog`、`sift` 等宽泛关键词或整类 NTP 规则，本次也未添加 IP／ASN 兜底。此分组用于独立管理出口，DNS 沿用原有配置。
+- Claude 的核心、认证、内容分发及补充域名使用专用规则，优先于广告与通用 AI 分流；按 [Net.Coffee 域名清单](https://ip.net.coffee/claude/site.html) 的具体域名整理，`anthropic.com` 等后缀已覆盖其子域名。Sentry、Statsig、Datadog（`datadoghq.com`）、Intercom 等为共享服务，其他网站访问相同域名也会使用 Claude 分组。
+- 具体域名之后追加 `anthropic`、`claude` 关键词，使清单外的新域名仍归入 Claude，而不是被 ACL4SSR AI 规则的同名关键词分到 `💬 Ai平台`；最后以 Anthropic 自有 IP 段 `160.79.104.0/21`、`2607:6bc0::/32`（`no-resolve`）兜底直连 IP 的请求。
+- 不添加 `datadog`、`sift` 等宽泛关键词、ASN 规则（需额外数据库）或整类 NTP 规则（NTP 只提供 UTC 时间，不暴露时区）。此分组用于独立管理出口，DNS 沿用原有配置。
 
 ## 订阅内置 DNS
 
