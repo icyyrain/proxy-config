@@ -195,6 +195,7 @@ foreach ($rule in $requiredClaudeRules) {
 $expectedPs5Options = @(
     '🚀 节点选择',
     '🏠 自建节点',
+    '🏠 自建备用',
     '🇭🇰 香港节点',
     '🇯🇵 日本节点',
     '🇺🇲 美国节点',
