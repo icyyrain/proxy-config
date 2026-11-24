@@ -10,7 +10,6 @@ param(
     [string]$ShortUrlEndpoint,
     [string]$RenameRule,
     [string[]]$SelfHostedPrefixes,
-    [string]$BitTorrentSourceIPv4,
     [Nullable[bool]]$Udp,
     [Nullable[bool]]$Xudp,
     [Nullable[bool]]$Emoji,
@@ -116,19 +115,11 @@ function ConvertTo-SelfHostedPattern {
 
 $threeXuiUrl = Assert-HttpUrl (Resolve-Setting 'ThreeXuiSubscriptionUrl' $null) 'ThreeXuiSubscriptionUrl'
 $airportUrl = Assert-HttpUrl (Resolve-Setting 'AirportSubscriptionUrl' $null) 'AirportSubscriptionUrl'
-$btSource = [string](Resolve-Setting 'BitTorrentSourceIPv4' '')
-if ($btSource) {
-    $address = $null
-    if (-not [Net.IPAddress]::TryParse($btSource, [ref]$address) -or
-        $address.AddressFamily -ne [Net.Sockets.AddressFamily]::InterNetwork -or
-        $address.ToString() -cne $btSource) {
-        throw 'BitTorrentSourceIPv4 must be a single IPv4 address in dotted decimal notation.'
-    }
-}
 $remoteConfig = Assert-HttpUrl (
     Resolve-Setting 'RemoteConfigUrl' 'https://raw.githubusercontent.com/icyyrain/proxy-config/main/subconverter.ini'
 ) 'RemoteConfigUrl'
-if (-not $btSource -and $remoteConfig -ceq 'https://raw.githubusercontent.com/icyyrain/proxy-config/main/subconverter.ini') {
+if ($remoteConfig -ceq 'https://raw.githubusercontent.com/icyyrain/proxy-config/main/subconverter.ini') {
+    # Avoid a cached pre-template INI ignoring the new per-link prefix parameter.
     $remoteConfig += '?v=selfhost-v1'
 }
 $backend = Assert-HttpUrl (Resolve-Setting 'BackendUrl' 'https://api.v1.mk') 'BackendUrl'
@@ -180,9 +171,6 @@ $queryValues = [ordered]@{
     new_name = ConvertTo-LowerBoolean $resolvedNewName
     diyua    = $resolvedUserAgent
     selfhost = $selfHostedPattern
-}
-if ($btSource) {
-    $queryValues['bt_ipv4'] = $btSource
 }
 
 $query = (

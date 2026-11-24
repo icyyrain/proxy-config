@@ -78,19 +78,7 @@ Assert-Equal 'false' $defaultQuery.fdn 'FDN mismatch'
 Assert-Equal 'true' $defaultQuery.new_name 'Clash field-name mismatch'
 Assert-Equal 'ShadowRocket' $defaultQuery.diyua 'User-Agent mismatch'
 Assert-Equal '(?:MochaKK)' $defaultQuery.selfhost 'Default self-hosted prefixes mismatch'
-Assert-True (-not $defaultQuery.ContainsKey('bt_ipv4')) 'Default link unexpectedly enabled BT routing'
 Assert-True ([string]::IsNullOrEmpty($defaultResult.ShortUrl)) 'Default execution unexpectedly created a short link'
-
-$btLink = & $scriptPath -ConfigPath $fixturePath -BitTorrentSourceIPv4 '192.0.2.9'
-$btQuery = ConvertFrom-QueryString ([Uri]$btLink.LongUrl).Query
-Assert-Equal '192.0.2.9' $btQuery.bt_ipv4 'BT source IPv4 mismatch'
-Assert-Equal 'https://raw.githubusercontent.com/icyyrain/proxy-config/main/subconverter.ini' $btQuery.config 'BT remote config mismatch'
-foreach ($invalidAddress in @('192.0.2.0/24', '192.0.2.999', '::1', '192.2.9')) {
-    $failed = $false
-    try { $null = & $scriptPath -ConfigPath $fixturePath -BitTorrentSourceIPv4 $invalidAddress }
-    catch { $failed = $true }
-    Assert-True $failed 'Invalid BT source IPv4 was accepted'
-}
 
 $friendResult = & $scriptPath `
     -ConfigPath $fixturePath `

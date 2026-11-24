@@ -22,7 +22,7 @@ https://raw.githubusercontent.com/icyyrain/proxy-config/main/subconverter.ini
 - `🎥 奈飞视频`：保留 Netflix 域名分流，默认跟随节点选择，也可独立选择地区组或自建组。
 - `🎬 小宝影院`：网站及常见 `dytt-` 视频源域名默认使用香港节点，避免自建美国线路到片源速度过低。
 - `🎮 PS5节点`：供自定义 PS5 规则使用，默认跟随节点选择，也可在自建、自建备用、香港、日本、美国节点与直连之间独立选择。
-- `📥 BT 下载`：与 PS5 节点使用相同的策略组选项，默认跟随节点选择。路由器专用链接设置 `BitTorrentSourceIPv4` 后，订阅按下载器 IP 和源端口分流。
+- `📥 BT 下载`：供路由器自定规则使用，与 PS5 节点使用相同的策略组选项，默认跟随节点选择。
 - 20 个业务与媒体分组可直接选择 `🏠 自建节点`、`🏠 自建备用` 或 `🏡 自建住宅IP`，无需改变全局节点选择。住宅组选项紧跟“手动切换”；原本没有该选项的哔哩哔哩、网易音乐组放在末尾。
 - Pixiv 相关域名在通用代理与媒体规则之前匹配，避免被后续规则抢先处理。
 - `💬 Ai平台`：Copilot 专用域名优先于微软通用规则匹配；Grok 网页 `grok.com` 与现有 `x.ai` 规则统一使用 AI 分组；额外覆盖 Meta Muse 的 `muse.ai` 及其子域名。
@@ -33,7 +33,7 @@ https://raw.githubusercontent.com/icyyrain/proxy-config/main/subconverter.ini
 
 ## 订阅内置 DNS
 
-`subconverter.ini` 通过 `clash_rule_base` 引用固定版本的 `clash-base.yaml`，将公共基础设置和 DNS 一起写入转换后的订阅。修改基础模板后，发布文件并把 INI 中的引用更新到新提交，避免服务复用旧缓存。DNS 配置面向 FlClash / Mihomo（Clash Meta），需要客户端的 GeoSite 数据库包含 `cn`。
+`subconverter.ini` 通过 `clash_rule_base` 引用本仓库的 `clash-base.yaml`，将公共基础设置和 DNS 一起写入转换后的订阅。DNS 配置面向 FlClash / Mihomo（Clash Meta），需要客户端的 GeoSite 数据库包含 `cn`。
 
 - 普通域名默认使用 Google / Cloudflare DoH，通过现有 `🚀 节点选择` 代理组访问。
 - 国内域名通过 `geosite:cn`、`.cn` 和微信等专门策略使用国内直连 DoH；清空旧的 fallback。
@@ -84,10 +84,6 @@ DNS 检查也可通过 `--converted <私密配置文件路径>` 核对实际转�
 
 所有参数和示例配置见 `config/subscription.example.psd1`。脚本返回的长链接包含可还原的原始订阅地址，短链服务也能看到长链接；两者都应视作凭据，不要提交到公开仓库。
 
-### 为路由器启用 BT 下载分流
-
-生成路由器专用订阅时，用 `-BitTorrentSourceIPv4` 指定下载器的固定局域网 IPv4。qBittorrent 的 TCP 出站端口设为 `43000–43999`，监听端口设为 `4377`。这条链接将上述 TCP 和 UDP 流量分到 `📥 BT 下载`，普通订阅链接仅生成分组。
-
 ### 按链接设置自建前缀
 
 `SelfHostedPrefixes` 是字符串数组，默认 `@('MochaKK')`。可以保存在本地 PSD1，也可在生成某条链接时覆盖：
@@ -102,7 +98,7 @@ DNS 检查也可通过 `--converted <私密配置文件路径>` 核对实际转�
 
 生成器把筛选表达式编码到链接的 `selfhost` 参数，由远程 INI 模板按请求读取。不同链接可以各自使用不同前缀；不带该参数的旧链接默认继续匹配 `MochaKK`。已有短链不会自动获得新的自定义列表，需要按新参数生成新链接。
 
-为避开转换服务缓存的旧版 INI，普通链接对标准 Raw URL 附加 `?v=selfhost-v1`。启用 BT 分流的链接使用标准 Raw URL。自定义的 `RemoteConfigUrl` 原样保留，需要使用支持相应参数的模板。
+为避开转换服务缓存的旧版静态 INI，生成器对本仓库的标准 Raw URL 自动附加 `?v=selfhost-v1` 模板版本标识。自定义的其他 `RemoteConfigUrl` 原样保留，并需要对应模板支持 `request.selfhost`。
 
 需要核对真实转换服务时，可运行下列集成检查（需 Python 的 requests / PyYAML 和 PowerShell）。检查仅向服务发送虚拟测试节点，不读取本地私密订阅、不创建短链接：
 

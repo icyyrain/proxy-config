@@ -1,4 +1,4 @@
-# Subconverter adds generated nodes, groups and rules to this template.
+# Base template for Subconverter; generated nodes, groups and rules replace the empty lists.
 # DNS requires Mihomo (Clash Meta) and a GeoSite database containing cn.
 # Keep this DNS block before proxies so Merlin Clash can use its own router template.
 # Device-specific TUN/system proxy settings belong in the client.
@@ -350,10 +350,4 @@ dns:
     domain: []
 proxies: []
 proxy-groups: []
-{% if default(request.bt_ipv4, "") != "" %}
-rules:
-  - 'AND,((SRC-IP-CIDR,{{ request.bt_ipv4 }}/32),(NETWORK,TCP),(SRC-PORT,43000-43999)),📥 BT 下载'
-  - 'AND,((SRC-IP-CIDR,{{ request.bt_ipv4 }}/32),(NETWORK,UDP),(SRC-PORT,4377)),📥 BT 下载'
-{% else %}
 rules: []
-{% endif %}
