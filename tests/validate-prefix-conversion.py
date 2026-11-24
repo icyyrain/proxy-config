@@ -95,7 +95,7 @@ if ($spec.bt_ip) { $settings.BitTorrentSourceIPv4=$spec.bt_ip }
                 raise RuntimeError(f'{label}: incorrect membership in {group}')
         if groups.get('🏡 自建住宅IP') != residential:
             raise RuntimeError(f'{label}: incorrect residential membership')
-        if groups.get(BT_GROUP) != ['🚀 节点选择', 'DIRECT', *actual_names]:
+        if not groups.get(BT_GROUP) or groups[BT_GROUP] != groups.get('🎮 PS5节点'):
             raise RuntimeError(f'{label}: incorrect BT selector options')
         rules = config.get('rules', [])
         bt_rules = [rule for rule in rules if rule.endswith(',' + BT_GROUP)]
