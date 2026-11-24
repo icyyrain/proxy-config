@@ -18,6 +18,8 @@ import yaml
 
 
 ROOT = Path(__file__).resolve().parents[1]
+BT_GROUP = '📥 BT 下载'
+BT_TEST_IP = '192.0.2.9'
 NAMES = [
     'MochaKK-US-main', 'MochaKK-US-residential',
     'FriendVPS-JP-main', 'FriendVPS-US-Residential',
@@ -40,7 +42,8 @@ def main():
     fixture = {'proxies': [dict(name=n, type='ss', server='example.invalid', port=443,
                                cipher='aes-128-gcm', password='synthetic-test-only') for n in NAMES]}
     source = 'data:text/plain;base64,' + base64.b64encode(yaml.safe_dump(fixture, allow_unicode=True).encode()).decode()
-    expected_dns = yaml.safe_load((ROOT / 'clash-base.yaml').read_text(encoding='utf-8'))['dns']
+    static_base = (ROOT / 'clash-base.yaml').read_text(encoding='utf-8').partition('\n{% if ')[0]
+    expected_dns = yaml.safe_load(static_base)['dns']
     command = r"""
 [Console]::OutputEncoding=[Text.UTF8Encoding]::new($false)
 $ErrorActionPreference='Stop'
@@ -48,12 +51,16 @@ $spec=$env:PROXY_CONFIG_PREFIX_TEST | ConvertFrom-Json
 $settings=@{ConfigPath='./tests/fixtures/subscription.test.psd1'}
 if ($spec.config) { $settings.RemoteConfigUrl=$spec.config }
 if ($spec.prefixes) { $settings.SelfHostedPrefixes=[string[]]@($spec.prefixes) }
+if ($spec.bt_ip) { $settings.BitTorrentSourceIPv4=$spec.bt_ip }
 (& './scripts/New-SubconverterLink.ps1' @settings).LongUrl
 """
 
     def probe(case):
         label, requested, expected = case
-        env = dict(os.environ, PROXY_CONFIG_PREFIX_TEST=json.dumps({'prefixes': requested, 'config': args.config_url}))
+        bt_ip = BT_TEST_IP if label == 'bt-router' else None
+        env = dict(os.environ, PROXY_CONFIG_PREFIX_TEST=json.dumps({
+            'prefixes': requested, 'config': args.config_url, 'bt_ip': bt_ip,
+        }))
         generated = subprocess.run([args.powershell, '-NoProfile', '-Command', command], cwd=ROOT,
                                    env=env, capture_output=True, encoding='utf-8-sig')
         if generated.returncode:
@@ -88,6 +95,18 @@ if ($spec.prefixes) { $settings.SelfHostedPrefixes=[string[]]@($spec.prefixes) }
                 raise RuntimeError(f'{label}: incorrect membership in {group}')
         if groups.get('🏡 自建住宅IP') != residential:
             raise RuntimeError(f'{label}: incorrect residential membership')
+        if groups.get(BT_GROUP) != ['🚀 节点选择', 'DIRECT', *actual_names]:
+            raise RuntimeError(f'{label}: incorrect BT selector options')
+        rules = config.get('rules', [])
+        bt_rules = [rule for rule in rules if rule.endswith(',' + BT_GROUP)]
+        expected_bt_rules = []
+        if bt_ip:
+            expected_bt_rules = [
+                f'AND,((SRC-IP-CIDR,{bt_ip}/32),(NETWORK,{network}),(SRC-PORT,{port})),{BT_GROUP}'
+                for network, port in [('TCP', '43000-43999'), ('UDP', '4377')]
+            ]
+        if bt_rules != expected_bt_rules or (bt_ip and rules[:2] != expected_bt_rules):
+            raise RuntimeError(f'{label}: BT rules were added unexpectedly, changed or reordered')
         if config.get('dns') != expected_dns:
             raise RuntimeError(f'{label}: DNS was changed by prefix selection')
         return dict(case=label, source_nodes=len(actual_names), self_hosted=len(members), residential=len(residential))
@@ -95,6 +114,7 @@ if ($spec.prefixes) { $settings.SelfHostedPrefixes=[string[]]@($spec.prefixes) }
     cases = [
         ('default', None, ['MochaKK']),
         ('legacy-no-parameter', None, ['MochaKK']),
+        ('bt-router', None, ['MochaKK']),
         ('single-prefix', ['FriendVPS'], ['FriendVPS']),
         ('multiple-prefixes', ['MochaKK', 'FriendVPS'], ['MochaKK', 'FriendVPS']),
         ('literal-special-characters', ['C++', 'Lab.(A)', 'Pipe|Home', 'Back`Tick'],
@@ -107,7 +127,7 @@ if ($spec.prefixes) { $settings.SelfHostedPrefixes=[string[]]@($spec.prefixes) }
                 print(json.dumps(result, ensure_ascii=False), flush=True)
     except RuntimeError as error:
         raise SystemExit(str(error)) from None
-    print('Real conversion validated for all three groups; default, legacy, custom, literal and Unicode prefixes passed')
+    print('Real conversion validated self-hosted groups, DNS and opt-in BT routing')
 
 
 if __name__ == '__main__':

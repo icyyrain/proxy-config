@@ -23,11 +23,13 @@ def main():
     ini = (root / 'subconverter.ini').read_text(encoding='utf-8')
     lines = ini.splitlines()
     require([x for x in lines if x.startswith('clash_rule_base=')] == [
-        'clash_rule_base=https://raw.githubusercontent.com/icyyrain/proxy-config/main/clash-base.yaml'
+        'clash_rule_base=https://raw.githubusercontent.com/icyyrain/proxy-config/main/clash-base.yaml?v=bt-v1'
     ], 'The active INI must reference this repository DNS base template')
     groups = {x.split('=', 1)[1].split('`', 1)[0]
               for x in lines if x.startswith('custom_proxy_group=')}
-    base = yaml.safe_load((root / 'clash-base.yaml').read_text(encoding='utf-8'))
+    # Optional per-subscription routing follows the static DNS and empty node lists.
+    static_base = (root / 'clash-base.yaml').read_text(encoding='utf-8').partition('\n{% if ')[0]
+    base = yaml.safe_load(static_base)
     dns = base['dns']
     require(dns.get('enable') is True, 'DNS must be enabled')
     require(dns.get('enhanced-mode') == 'redir-host', 'Keep the validated DNS mode')
@@ -64,7 +66,7 @@ def main():
     require(bool(dns.get('default-nameserver')), 'Bootstrap DNS is required')
     require(not any(k in base for k in ['tun', 'secret', 'authentication']),
             'Do not distribute device routing or credentials in the public base')
-    require(all(base.get(k) == [] for k in ['proxies', 'proxy-groups', 'rules']),
+    require(all(base.get(k) == [] for k in ['proxies', 'proxy-groups']) and not base.get('rules'),
             'The public template must not contain actual subscription nodes or routing data')
     if args.converted:
         # Never print data or parser exceptions from a credential-bearing subscription.

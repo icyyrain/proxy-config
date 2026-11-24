@@ -5,6 +5,7 @@
     SubscriptionName        = 'Subscription Name'
     SelfHostedPrefixes      = @('MochaKK')
     RemoteConfigUrl         = 'https://raw.githubusercontent.com/icyyrain/proxy-config/main/subconverter.ini'
+    # BitTorrentSourceIPv4  = '192.0.2.9' # Optional LAN address for a router-only link.
     BackendUrl              = 'https://api.v1.mk'
     ShortUrlEndpoint        = 'https://v1.mk/short'
     Udp                     = $true

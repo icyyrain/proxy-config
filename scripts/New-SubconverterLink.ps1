@@ -10,6 +10,7 @@ param(
     [string]$ShortUrlEndpoint,
     [string]$RenameRule,
     [string[]]$SelfHostedPrefixes,
+    [string]$BitTorrentSourceIPv4,
     [Nullable[bool]]$Udp,
     [Nullable[bool]]$Xudp,
     [Nullable[bool]]$Emoji,
@@ -115,12 +116,21 @@ function ConvertTo-SelfHostedPattern {
 
 $threeXuiUrl = Assert-HttpUrl (Resolve-Setting 'ThreeXuiSubscriptionUrl' $null) 'ThreeXuiSubscriptionUrl'
 $airportUrl = Assert-HttpUrl (Resolve-Setting 'AirportSubscriptionUrl' $null) 'AirportSubscriptionUrl'
+$btSource = [string](Resolve-Setting 'BitTorrentSourceIPv4' '')
+if ($btSource) {
+    $address = $null
+    if (-not [Net.IPAddress]::TryParse($btSource, [ref]$address) -or
+        $address.AddressFamily -ne [Net.Sockets.AddressFamily]::InterNetwork -or
+        $address.ToString() -cne $btSource) {
+        throw 'BitTorrentSourceIPv4 must be a single IPv4 address in dotted decimal notation.'
+    }
+}
 $remoteConfig = Assert-HttpUrl (
     Resolve-Setting 'RemoteConfigUrl' 'https://raw.githubusercontent.com/icyyrain/proxy-config/main/subconverter.ini'
 ) 'RemoteConfigUrl'
 if ($remoteConfig -ceq 'https://raw.githubusercontent.com/icyyrain/proxy-config/main/subconverter.ini') {
-    # Avoid a cached pre-template INI ignoring the new per-link prefix parameter.
-    $remoteConfig += '?v=selfhost-v1'
+    # Use a new cache key for links that require the BT template.
+    $remoteConfig += if ($btSource) { '?v=bt-v1' } else { '?v=selfhost-v1' }
 }
 $backend = Assert-HttpUrl (Resolve-Setting 'BackendUrl' 'https://api.v1.mk') 'BackendUrl'
 $shortEndpoint = Assert-HttpUrl (Resolve-Setting 'ShortUrlEndpoint' 'https://v1.mk/short') 'ShortUrlEndpoint'
@@ -171,6 +181,9 @@ $queryValues = [ordered]@{
     new_name = ConvertTo-LowerBoolean $resolvedNewName
     diyua    = $resolvedUserAgent
     selfhost = $selfHostedPattern
+}
+if ($btSource) {
+    $queryValues['bt_ipv4'] = $btSource
 }
 
 $query = (
