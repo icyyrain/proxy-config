@@ -128,13 +128,8 @@ if ($btSource) {
 $remoteConfig = Assert-HttpUrl (
     Resolve-Setting 'RemoteConfigUrl' 'https://raw.githubusercontent.com/icyyrain/proxy-config/main/subconverter.ini'
 ) 'RemoteConfigUrl'
-if ($remoteConfig -ceq 'https://raw.githubusercontent.com/icyyrain/proxy-config/main/subconverter.ini') {
-    # Some converter caches ignore query strings, so use a distinct ref path for BT links.
-    $remoteConfig = if ($btSource) {
-        'https://raw.githubusercontent.com/icyyrain/proxy-config/refs/heads/main/subconverter.ini?v=bt-v2'
-    } else {
-        $remoteConfig + '?v=selfhost-v1'
-    }
+if (-not $btSource -and $remoteConfig -ceq 'https://raw.githubusercontent.com/icyyrain/proxy-config/main/subconverter.ini') {
+    $remoteConfig += '?v=selfhost-v1'
 }
 $backend = Assert-HttpUrl (Resolve-Setting 'BackendUrl' 'https://api.v1.mk') 'BackendUrl'
 $shortEndpoint = Assert-HttpUrl (Resolve-Setting 'ShortUrlEndpoint' 'https://v1.mk/short') 'ShortUrlEndpoint'
