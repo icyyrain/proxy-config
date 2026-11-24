@@ -102,7 +102,7 @@ DNS 检查也可通过 `--converted <私密配置文件路径>` 核对实际转�
 
 生成器把筛选表达式编码到链接的 `selfhost` 参数，由远程 INI 模板按请求读取。不同链接可以各自使用不同前缀；不带该参数的旧链接默认继续匹配 `MochaKK`。已有短链不会自动获得新的自定义列表，需要按新参数生成新链接。
 
-为避开转换服务缓存的旧版 INI，生成器对标准 Raw URL 附加 `?v=selfhost-v1`，启用 BT 分流的链接使用 `?v=bt-v2`。自定义的 `RemoteConfigUrl` 原样保留，需要使用支持相应参数的模板。
+为避开转换服务缓存的旧版 INI，普通链接对标准 Raw URL 附加 `?v=selfhost-v1`，启用 BT 分流的链接改用 `refs/heads/main` 路径和 `?v=bt-v2`。自定义的 `RemoteConfigUrl` 原样保留，需要使用支持相应参数的模板。
 
 需要核对真实转换服务时，可运行下列集成检查（需 Python 的 requests / PyYAML 和 PowerShell）。检查仅向服务发送虚拟测试节点，不读取本地私密订阅、不创建短链接：
 

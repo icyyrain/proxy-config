@@ -84,7 +84,7 @@ Assert-True ([string]::IsNullOrEmpty($defaultResult.ShortUrl)) 'Default executio
 $btLink = & $scriptPath -ConfigPath $fixturePath -BitTorrentSourceIPv4 '192.0.2.9'
 $btQuery = ConvertFrom-QueryString ([Uri]$btLink.LongUrl).Query
 Assert-Equal '192.0.2.9' $btQuery.bt_ipv4 'BT source IPv4 mismatch'
-Assert-Equal 'https://raw.githubusercontent.com/icyyrain/proxy-config/main/subconverter.ini?v=bt-v2' $btQuery.config 'BT config cache key mismatch'
+Assert-Equal 'https://raw.githubusercontent.com/icyyrain/proxy-config/refs/heads/main/subconverter.ini?v=bt-v2' $btQuery.config 'BT config cache key mismatch'
 foreach ($invalidAddress in @('192.0.2.0/24', '192.0.2.999', '::1', '192.2.9')) {
     $failed = $false
     try { $null = & $scriptPath -ConfigPath $fixturePath -BitTorrentSourceIPv4 $invalidAddress }
