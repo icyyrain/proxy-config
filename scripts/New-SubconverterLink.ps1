@@ -130,7 +130,7 @@ $remoteConfig = Assert-HttpUrl (
 ) 'RemoteConfigUrl'
 if ($remoteConfig -ceq 'https://raw.githubusercontent.com/icyyrain/proxy-config/main/subconverter.ini') {
     # Use a new cache key for links that require the BT template.
-    $remoteConfig += if ($btSource) { '?v=bt-v1' } else { '?v=selfhost-v1' }
+    $remoteConfig += if ($btSource) { '?v=bt-v2' } else { '?v=selfhost-v1' }
 }
 $backend = Assert-HttpUrl (Resolve-Setting 'BackendUrl' 'https://api.v1.mk') 'BackendUrl'
 $shortEndpoint = Assert-HttpUrl (Resolve-Setting 'ShortUrlEndpoint' 'https://v1.mk/short') 'ShortUrlEndpoint'

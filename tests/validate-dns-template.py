@@ -5,6 +5,7 @@ Requires Python 3 and PyYAML. --converted additionally checks an actual conversi
 import argparse
 import ipaddress
 from pathlib import Path
+import re
 from urllib.parse import urlsplit
 
 import yaml
@@ -22,9 +23,11 @@ def main():
     root = Path(__file__).resolve().parents[1]
     ini = (root / 'subconverter.ini').read_text(encoding='utf-8')
     lines = ini.splitlines()
-    require([x for x in lines if x.startswith('clash_rule_base=')] == [
-        'clash_rule_base=https://raw.githubusercontent.com/icyyrain/proxy-config/main/clash-base.yaml?v=bt-v1'
-    ], 'The active INI must reference this repository DNS base template')
+    base_refs = [x for x in lines if x.startswith('clash_rule_base=')]
+    require(len(base_refs) == 1 and re.fullmatch(
+        r'clash_rule_base=https://raw\.githubusercontent\.com/icyyrain/proxy-config/[0-9a-f]{40}/clash-base\.yaml',
+        base_refs[0],
+    ), 'The active INI must pin a version of this repository DNS base template')
     groups = {x.split('=', 1)[1].split('`', 1)[0]
               for x in lines if x.startswith('custom_proxy_group=')}
     # Optional per-subscription routing follows the static DNS and empty node lists.

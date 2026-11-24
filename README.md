@@ -33,7 +33,7 @@ https://raw.githubusercontent.com/icyyrain/proxy-config/main/subconverter.ini
 
 ## 订阅内置 DNS
 
-`subconverter.ini` 通过 `clash_rule_base` 引用本仓库的 `clash-base.yaml`，将公共基础设置和 DNS 一起写入转换后的订阅。DNS 配置面向 FlClash / Mihomo（Clash Meta），需要客户端的 GeoSite 数据库包含 `cn`。
+`subconverter.ini` 通过 `clash_rule_base` 引用固定版本的 `clash-base.yaml`，将公共基础设置和 DNS 一起写入转换后的订阅。修改基础模板后，发布文件并把 INI 中的引用更新到新提交，避免服务复用旧缓存。DNS 配置面向 FlClash / Mihomo（Clash Meta），需要客户端的 GeoSite 数据库包含 `cn`。
 
 - 普通域名默认使用 Google / Cloudflare DoH，通过现有 `🚀 节点选择` 代理组访问。
 - 国内域名通过 `geosite:cn`、`.cn` 和微信等专门策略使用国内直连 DoH；清空旧的 fallback。
@@ -102,7 +102,7 @@ DNS 检查也可通过 `--converted <私密配置文件路径>` 核对实际转�
 
 生成器把筛选表达式编码到链接的 `selfhost` 参数，由远程 INI 模板按请求读取。不同链接可以各自使用不同前缀；不带该参数的旧链接默认继续匹配 `MochaKK`。已有短链不会自动获得新的自定义列表，需要按新参数生成新链接。
 
-为避开转换服务缓存的旧版 INI，生成器对标准 Raw URL 附加 `?v=selfhost-v1`，启用 BT 分流的链接使用 `?v=bt-v1`。自定义的 `RemoteConfigUrl` 原样保留，需要使用支持相应参数的模板。
+为避开转换服务缓存的旧版 INI，生成器对标准 Raw URL 附加 `?v=selfhost-v1`，启用 BT 分流的链接使用 `?v=bt-v2`。自定义的 `RemoteConfigUrl` 原样保留，需要使用支持相应参数的模板。
 
 需要核对真实转换服务时，可运行下列集成检查（需 Python 的 requests / PyYAML 和 PowerShell）。检查仅向服务发送虚拟测试节点，不读取本地私密订阅、不创建短链接：
 
