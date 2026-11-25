@@ -44,7 +44,8 @@ def main():
     policy = dns.get('nameserver-policy', {})
     require('geosite:cn' in policy and '+.cn' in policy, 'Domestic DNS policies must cover the CN set and TLD')
     require('+.weixin.qq.com' in policy and '+.qpic.cn' in policy, 'Preserve WeChat DNS compatibility')
-    require('+.apple.com' in policy and '+.dl.playstation.net' in policy,
+    require('+.apple.com' in policy and '+.dl.playstation.net' in policy
+            and '+.ps5.update.playstation.net' in policy,
             'DIRECT download CDNs need domestic DNS to get domestic nodes')
     require(all(k in {'geosite:cn', '+.cn'} or k.startswith('+.') or (k.count('.') >= 2 and '*' not in k)
                 for k in policy), 'Unexpected catch-all DNS policy')
